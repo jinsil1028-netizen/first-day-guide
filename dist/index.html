@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>첫 출근 전 공지 작성</title>
+<style>
+  :root { color-scheme: light; --ink:#102e22; --muted:#456257; --mint:#B9EBD2; --green:#35A879; --deep-green:#176244; --line:#d3e5da; --control-line:#859e91; --paper:#fff; --back:#F3FAF6; }
+  * { box-sizing:border-box; }
+  ::selection { background:var(--mint); color:var(--ink); }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--back); color:var(--ink); font:16px/1.6 system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
+  h1,h2,p { margin:0; }
+  h1 { font-size:26px; line-height:1.35; overflow-wrap:anywhere; }
+  h2,legend { font-size:19px; font-weight:700; }
+  header { background:var(--paper); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:20px; max-width:1320px; margin:auto; padding:12px 24px; }
+  .brand-logo { display:block; flex:none; width:140px; height:auto; aspect-ratio:300 / 182; object-fit:cover; object-position:50% 57%; }
+  main { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:20px; max-width:1320px; margin:auto; padding:24px; }
+  .panel,dialog { background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:24px; }
+  .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+  fieldset { min-width:0; margin:20px 0 0; padding:12px 0 0; border:0; border-top:1px solid var(--line); }
+  legend { padding:0 10px 0 0; }
+  label.field { display:block; font-weight:700; margin-bottom:6px; }
+  input:not([type=checkbox]),textarea { width:100%; border:1px solid var(--control-line); border-radius:10px; padding:9px 12px; min-height:44px; font:inherit; color:inherit; background:white; }
+  textarea { resize:vertical; }
+  .row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:8px; margin-bottom:8px; }
+  button,.action { display:inline-flex; justify-content:center; align-items:center; min-height:44px; border:1px solid var(--control-line); border-radius:10px; padding:8px 13px; background:white; color:var(--deep-green); font:inherit; font-weight:700; text-decoration:none; cursor:pointer; }
+  button:not(:disabled):hover,.action:hover { background:var(--mint); }
+  .primary { background:var(--green); color:var(--ink); border-color:var(--deep-green); }
+  #share { color:#fff; }
+  #share:hover { background:var(--deep-green); }
+  button:disabled { color:var(--muted); background:#e7f1eb; border-color:var(--line); cursor:default; }
+  :focus-visible { outline:3px solid var(--deep-green); outline-offset:3px; }
+  .place { margin-top:14px; }
+  .muted { color:var(--muted); }
+  .error { color:#a12034; }
+  .error:not(:empty) { margin-top:8px; }
+  [aria-invalid=true] { border-color:#a12034 !important; }
+  .intro { margin-top:8px; }
+  #empty { margin-top:18px; }
+  .group { margin-top:22px; border-top:1px solid var(--line); padding-top:14px; }
+  .check { display:flex; align-items:flex-start; gap:10px; min-height:44px; padding:9px 10px; border-radius:10px; cursor:pointer; }
+  .check:has(input:checked) { background:var(--mint); }
+  .check input { flex:none; width:20px; height:20px; margin:3px 0 0; accent-color:var(--deep-green); }
+  .check span { white-space:pre-wrap; overflow-wrap:anywhere; min-width:0; }
+  a { color:var(--deep-green); overflow-wrap:anywhere; }
+  .place-link { display:block; width:fit-content; max-width:calc(100% - 50px); margin:2px 10px 20px 40px; }
+  footer { border-top:1px solid var(--line); margin-top:20px; padding-top:16px; }
+  progress { display:block; width:100%; height:12px; margin:8px 0 14px; accent-color:var(--green); }
+  #confirm { width:100%; }
+  #done:not(:empty) { margin-top:10px; color:var(--deep-green); font-weight:700; }
+  .employee main { display:block; max-width:850px; }
+  dialog { width:min(520px,calc(100% - 32px)); color:var(--ink); }
+  dialog::backdrop { background:#102e2288; }
+  dialog p,.dialog-actions,#copy-status { margin-top:10px; }
+  dialog input { margin-top:10px; }
+  .dialog-actions { display:flex; flex-wrap:wrap; gap:8px; }
+  @media (max-width:800px) {
+    main { grid-template-columns:minmax(0,1fr); padding:14px; gap:16px; }
+    .panel,dialog { padding:16px; }
+    .brand { gap:12px; padding:10px 14px; }
+    .brand-logo { width:104px; }
+    h1 { font-size:22px; }
+  }
+</style>
+</head>
+<body>
+<header id="header">
+  <div class="brand">
+    <img class="brand-logo" src="brand-logo-transparent.png" alt="밥도둑 비빔밥">
+    <h1>첫 출근 전 공지 작성</h1>
+  </div>
+</header>
+<main>
+  <section id="editor" class="panel" aria-label="안내 편집">
+    <label class="field" for="name">직원 이름</label>
+    <input id="name" maxlength="60" placeholder="직원 이름을 입력해 주세요" aria-describedby="guide-error">
+    <div id="fields"></div>
+  </section>
+  <section aria-label="첫 출근 안내">
+    <div id="tools">
+      <div class="toolbar">
+        <h2>직원용 안내 미리보기</h2>
+        <button type="button" class="primary" id="share">안내 링크 만들기</button>
+      </div>
+      <p class="error" id="guide-error" role="alert"></p>
+    </div>
+    <article class="panel" id="guide">
+      <h1 id="welcome">첫 출근을 환영합니다.</h1>
+      <p class="intro">아래 사항을 꼭 확인해 주세요.</p>
+      <p id="empty" class="muted">왼쪽에서 입력한 안내가 여기에 표시돼요.</p>
+      <div id="checklist"></div>
+      <footer>
+        <p id="count" aria-live="polite"></p>
+        <progress id="progress" value="0" max="1" aria-label="안내 확인 진행률"></progress>
+        <button type="button" id="confirm" class="primary" disabled>모든 사항을 확인하고 5분전 도착할 예정입니다</button>
+        <p id="done" role="status"></p>
+      </footer>
+    </article>
+    <p id="bad-link" class="panel error" role="status" hidden></p>
+  </section>
+</main>
+<dialog id="share-dialog" aria-labelledby="dialog-title">
+  <h2 id="dialog-title">안내 링크를 만들었어요</h2>
+  <p>직원에게는 안내 내용과 체크박스가 표시돼요.</p>
+  <input id="share-url" aria-label="직원용 안내 주소" readonly autofocus>
+  <div class="dialog-actions">
+    <button type="button" class="primary" id="copy">링크 복사</button>
+    <a class="action" id="open-guide" target="_blank" rel="noopener noreferrer">안내 열기</a>
+    <form method="dialog"><button>닫기</button></form>
+  </div>
+  <p id="copy-status" role="status"></p>
+</dialog>
+<script>
+'use strict';
+
+const categories = ['준비서류', '복장', '규정', '비상연락처 (이슈발생시)', '찾아오는 길'];
+const limits = { name: 60, item: 1000, group: 100, place: 3000 };
+const draftKey = 'firstday-draft';
+const placeError = 'https로 시작하는 네이버 플레이스 주소를 입력해 주세요.';
+const guideEndpoint = 'https://lbzphfptuszkgpmgihvs.supabase.co/functions/v1/guide-links';
+const guideApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxienBoZnB0dXN6a2dwbWdpaHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyNDY2ODYsImV4cCI6MjEwOTgyMjY4Nn0.5QXs_szZpD6tp4iJppTMP4ZZEHZ_ouiyIAb-DuY38iM';
+const guideHeaders = { apikey: guideApiKey, Authorization: 'Bearer ' + guideApiKey };
+const invalidLink = '안내 링크가 올바르지 않아요. 전달받은 주소 전체를 다시 열어주세요.';
+const storedLinkPattern = /^#guide=db1\.([0-9a-f-]{36})\.([A-Za-z0-9_-]{43})$/;
+const byId = id => document.getElementById(id);
+const make = (tag, text, className) => {
+  const element = document.createElement(tag);
+  if (text) element.textContent = text;
+  if (className) element.className = className;
+  return element;
+};
+
+function storageRead(storage, key) {
+  try { return JSON.parse(window[storage].getItem(key)); }
+  catch { return null; }
+}
+
+function storageWrite(storage, key, value) {
+  try { window[storage].setItem(key, JSON.stringify(value)); }
+  catch { /* Storage can be disabled by the browser. */ }
+}
+
+function validPlace(value) {
+  if (!/^https:\/\//i.test(value) || /[\s\\\u0000-\u001f\u007f]/u.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password &&
+      /(?:^|\.)naver\.(?:com|me)$/i.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function validShape(data) {
+  return data && typeof data.name === 'string' && data.name.length <= limits.name &&
+    typeof data.place === 'string' && data.place.length <= limits.place &&
+    Array.isArray(data.groups) && data.groups.length === categories.length &&
+    data.groups.every(group => Array.isArray(group) && group.length <= limits.group &&
+      group.every(item => typeof item === 'string' && item.length <= limits.item));
+}
+
+function snapshot(data) {
+  return {
+    name: data.name.trim(),
+    groups: data.groups.map(group => group.filter(item => item.trim())),
+    place: data.place.trim()
+  };
+}
+
+function encodeBytes(bytes) {
+  const chunks = [];
+  for (let start = 0; start < bytes.length; start += 8192) {
+    chunks.push(String.fromCharCode(...bytes.subarray(start, start + 8192)));
+  }
+  return btoa(chunks.join('')).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeBytes(encoded) {
+  const binary = atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+
+function parseGuide(bytes) {
+  const data = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  if (!validShape(data)) return null;
+  const guide = snapshot(data);
+  if (!guide.name || (guide.place && !validPlace(guide.place))) return null;
+  return guide.place || guide.groups.some(group => group.length) ? guide : null;
+}
+
+function decode(hash) {
+  const encoded = hash.slice('#guide='.length);
+  // A maximum-size payload of JSON-escaped UTF-16 code units fits in this bound.
+  if (!hash.startsWith('#guide=') || encoded.length > 4100000 || !/^[A-Za-z0-9_-]+={0,2}$/.test(encoded)) return null;
+  try {
+    return parseGuide(decodeBytes(encoded));
+  } catch {
+    return null;
+  }
+}
+
+async function saveGuide(guide) {
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plaintext = new TextEncoder().encode(JSON.stringify(guide));
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+  const envelope = new Uint8Array(iv.length + ciphertext.byteLength);
+  envelope.set(iv);
+  envelope.set(new Uint8Array(ciphertext), iv.length);
+  const keyText = encodeBytes(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+  const result = await fetch(guideEndpoint, {
+    method: 'POST',
+    headers: { ...guideHeaders, 'Content-Type': 'text/plain' },
+    body: encodeBytes(envelope),
+    signal: AbortSignal.timeout(15000)
+  });
+  if (!result.ok) throw new Error('Could not save guide');
+  const { id } = await result.json();
+  return 'guide=db1.' + id + '.' + keyText;
+}
+
+async function loadGuide(hash) {
+  const match = hash.match(storedLinkPattern);
+  if (!match) return null;
+  const [, id, keyText] = match;
+  const result = await fetch(guideEndpoint + '?id=' + id, {
+    headers: guideHeaders,
+    signal: AbortSignal.timeout(15000)
+  });
+  if (result.status === 400 || result.status === 404) return null;
+  if (!result.ok) throw new Error('Could not load guide');
+  try {
+    const { envelope } = await result.json();
+    const bytes = decodeBytes(envelope);
+    const key = await crypto.subtle.importKey('raw', decodeBytes(keyText), 'AES-GCM', false, ['decrypt']);
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.subarray(0, 12) }, key, bytes.subarray(12));
+    return parseGuide(plaintext);
+  } catch {
+    return null;
+  }
+}
+
+let data, employee, sessionKey;
+let pageRequest = 0;
+let checked = new Set();
+let completed = false;
+let activeKeys = [];
+let groupViews = [];
+let placeInput, placeMessage;
+
+function refreshProgress() {
+  const total = activeKeys.length;
+  const count = activeKeys.filter(key => checked.has(key)).length;
+  const allChecked = total > 0 && count === total;
+  byId('count').textContent = `${count} / ${total}개 확인`;
+  byId('progress').max = total || 1;
+  byId('progress').value = count;
+  byId('confirm').disabled = !allChecked || completed;
+  byId('done').textContent = completed ? '모든 안내를 확인했어요. 첫 출근 날 뵙겠습니다.' : '';
+}
+
+function saveChecks() {
+  if (employee) storageWrite('sessionStorage', sessionKey, { checked: [...checked], completed });
+}
+
+function checklistItem(key, value) {
+  activeKeys.push(key);
+  const label = make('label', '', 'check');
+  const box = make('input');
+  box.type = 'checkbox';
+  box.checked = checked.has(key);
+  box.addEventListener('change', () => {
+    if (box.checked) checked.add(key);
+    else checked.delete(key);
+    completed = false;
+    refreshProgress();
+    saveChecks();
+  });
+  label.append(box, make('span', value));
+  return label;
+}
+
+function renderGuide() {
+  const guide = snapshot(data);
+  const showPlace = !!guide.place && validPlace(guide.place);
+  byId('welcome').textContent = guide.name ? `${guide.name} 님 첫 출근을 환영합니다.` : '첫 출근을 환영합니다.';
+  activeKeys = [];
+  const sections = [];
+  guide.groups.forEach((items, index) => {
+    const hasPlace = index === categories.length - 1 && showPlace;
+    if (!items.length && !hasPlace) return;
+    const section = make('section', '', 'group');
+    section.append(make('h2', categories[index]));
+    if (hasPlace) {
+      const link = make('a', guide.place, 'place-link');
+      link.href = guide.place;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      section.append(checklistItem('place', '매장 위치와 찾아오는 길을 확인했어요.'), link);
+    }
+    items.forEach((item, itemIndex) => section.append(checklistItem(`${index}-${itemIndex}`, item)));
+    sections.push(section);
+  });
+  byId('empty').hidden = sections.length > 0;
+  byId('checklist').replaceChildren(...sections);
+  completed = completed && activeKeys.length > 0 && activeKeys.every(key => checked.has(key));
+  refreshProgress();
+}
+
+function edit(reset = true) {
+  byId('guide-error').textContent = '';
+  const place = data.place.trim();
+  const invalid = !!place && !validPlace(place);
+  placeMessage.textContent = invalid ? placeError : '';
+  placeInput.setAttribute('aria-invalid', String(invalid));
+  if (reset) {
+    checked.clear();
+    completed = false;
+  }
+  storageWrite('localStorage', draftKey, data);
+  renderGuide();
+}
+
+function renderRows(index) {
+  const { rows, limitMessage, add } = groupViews[index];
+  const items = data.groups[index];
+  const atLimit = items.length >= limits.group;
+  limitMessage.textContent = atLimit ? '이 카테고리에는 최대 100개까지 추가할 수 있어요.' : '';
+  add.setAttribute('aria-disabled', String(atLimit));
+  const inputs = [];
+  rows.replaceChildren(...items.map((value, itemIndex) => {
+    const row = make('div', '', 'row');
+    const input = make('textarea');
+    input.rows = 2;
+    input.maxLength = limits.item;
+    input.placeholder = '안내 내용을 입력해 주세요';
+    input.setAttribute('aria-label', `${categories[index]} 항목 ${itemIndex + 1}`);
+    input.value = value;
+    input.addEventListener('input', () => {
+      items[itemIndex] = input.value;
+      edit();
+    });
+    const remove = make('button', '삭제');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `${categories[index]} 항목 ${itemIndex + 1} 삭제`);
+    remove.addEventListener('click', () => {
+      items.splice(itemIndex, 1);
+      const remaining = renderRows(index);
+      (remaining[Math.min(itemIndex, remaining.length - 1)] || add).focus();
+      edit();
+    });
+    inputs.push(input);
+    row.append(input, remove);
+    return row;
+  }));
+  return inputs;
+}
+
+function renderEditor() {
+  const name = byId('name');
+  name.value = data.name;
+  const fields = categories.map((category, index) => {
+    const section = make('fieldset');
+    const rows = make('div');
+    const add = make('button', '＋ 항목 추가');
+    const limitMessage = make('p', '', 'error');
+    limitMessage.setAttribute('role', 'status');
+    add.type = 'button';
+    add.setAttribute('aria-label', category + ' 항목 추가');
+    add.addEventListener('click', () => {
+      const items = data.groups[index];
+      if (items.length >= limits.group) return;
+      items.push('');
+      renderRows(index).at(-1).focus();
+      edit(false);
+    });
+    groupViews.push({ rows, add, limitMessage });
+    section.append(make('legend', category), rows, add, limitMessage);
+    if (index === categories.length - 1) {
+      const place = make('div', '', 'place');
+      const label = make('label', '네이버 플레이스 주소', 'field');
+      label.htmlFor = 'place';
+      placeInput = make('input');
+      placeInput.id = 'place';
+      placeInput.type = 'url';
+      placeInput.maxLength = limits.place;
+      placeInput.placeholder = 'https://naver.me/...';
+      placeInput.value = data.place;
+      placeInput.setAttribute('aria-describedby', 'place-error');
+      placeInput.addEventListener('input', () => {
+        data.place = placeInput.value;
+        edit();
+      });
+      placeMessage = make('p', '', 'error');
+      placeMessage.id = 'place-error';
+      placeMessage.setAttribute('role', 'status');
+      place.append(label, placeInput, placeMessage);
+      section.append(place);
+    }
+    return section;
+  });
+  byId('fields').replaceChildren(...fields);
+  categories.forEach((_, index) => renderRows(index));
+  const place = data.place.trim();
+  const invalid = !!place && !validPlace(place);
+  placeMessage.textContent = invalid ? placeError : '';
+  placeInput.setAttribute('aria-invalid', String(invalid));
+}
+
+byId('name').addEventListener('input', event => {
+  data.name = event.target.value;
+  edit();
+});
+
+byId('confirm').addEventListener('click', () => {
+  if (byId('confirm').disabled) return;
+  completed = true;
+  refreshProgress();
+  saveChecks();
+});
+
+const dialog = byId('share-dialog');
+const shareUrl = byId('share-url');
+const shareButton = byId('share');
+shareButton.addEventListener('click', async () => {
+  const guide = snapshot(data);
+  const message = byId('guide-error');
+  if (!guide.name) {
+    message.textContent = '직원 이름을 먼저 넣어주세요.';
+    byId('name').focus();
+    return;
+  }
+  if (guide.place && !validPlace(guide.place)) {
+    message.textContent = placeError;
+    placeInput.focus();
+    return;
+  }
+  if (!guide.place && !guide.groups.some(group => group.length)) {
+    message.textContent = '확인할 안내를 한 개 이상 넣어주세요.';
+    return;
+  }
+  message.textContent = '';
+  const url = new URL(location.href);
+  url.search = '';
+  const request = pageRequest;
+  shareButton.disabled = true;
+  try {
+    url.hash = await saveGuide(guide);
+  } catch {
+    if (request === pageRequest) message.textContent = '안내를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
+    return;
+  } finally {
+    shareButton.disabled = false;
+  }
+  if (request !== pageRequest) return;
+  shareUrl.value = url.href;
+  byId('open-guide').href = url.href;
+  byId('copy-status').textContent = '';
+  dialog.showModal();
+});
+
+byId('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value);
+    byId('copy-status').textContent = '링크를 복사했어요.';
+  } catch {
+    shareUrl.focus();
+    shareUrl.select();
+    byId('copy-status').textContent = '자동 복사에 실패했어요. 선택된 주소를 직접 복사해 주세요.';
+  }
+});
+
+async function openPage() {
+  const request = ++pageRequest;
+  const hash = location.hash;
+  employee = hash.startsWith('#guide');
+  sessionKey = 'firstday-checks:' + hash;
+  checked = new Set();
+  completed = false;
+  groupViews = [];
+  if (dialog.open) dialog.close();
+  document.body.classList.toggle('employee', employee);
+  byId('header').hidden = byId('editor').hidden = byId('tools').hidden = employee;
+  byId('guide-error').textContent = '';
+
+  if (employee) {
+    document.title = '첫 출근 안내';
+    let error = invalidLink;
+    if (hash.startsWith('#guide=db1.')) {
+      byId('guide').hidden = true;
+      byId('bad-link').hidden = false;
+      byId('bad-link').classList.remove('error');
+      byId('bad-link').textContent = '안내를 불러오는 중이에요.';
+      let guide = null;
+      try {
+        guide = await loadGuide(hash);
+      } catch {
+        error = '안내를 불러오지 못했어요. 잠시 후 새로고침해 주세요.';
+      }
+      if (request !== pageRequest) return;
+      data = guide;
+    } else {
+      data = decode(hash);
+    }
+    byId('bad-link').classList.add('error');
+    byId('bad-link').textContent = error;
+    byId('bad-link').hidden = !!data;
+    byId('guide').hidden = !data;
+    if (!data) return;
+    const saved = storageRead('sessionStorage', sessionKey);
+    if (Array.isArray(saved?.checked)) checked = new Set(saved.checked);
+    completed = saved?.completed === true;
+  } else {
+    document.title = '첫 출근 전 공지 작성';
+    byId('bad-link').hidden = true;
+    byId('guide').hidden = false;
+    const draft = storageRead('localStorage', draftKey);
+    data = validShape(draft) ? draft : { name: '', groups: categories.map(() => ['']), place: '' };
+    renderEditor();
+  }
+  renderGuide();
+}
+
+window.addEventListener('hashchange', openPage);
+openPage();
+</script>
+</body>
+</html>
